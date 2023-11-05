@@ -1,15 +1,11 @@
-import { useState } from "react";
+import Router from "./router";
 
 function App() {
-  const [count, setCount] = useState(0);
-
-  console.log(count);
-
   return (
     <>
-      <div>
-        <h1 className="text-3xl font-bold underline">Hello world!</h1>
-      </div>
+      <main className="bg-slate-200">
+        <Router />
+      </main>
     </>
   );
 }
