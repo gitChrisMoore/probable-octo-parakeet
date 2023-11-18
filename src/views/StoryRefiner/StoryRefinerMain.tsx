@@ -6,6 +6,13 @@ import StoryCollapsibleCard from "./StoryCollapsibleCard";
 import StoryModal from "./StoryModal";
 import useStoryUpdate from "../StoryUpdate/useStoryUpdate";
 import StoryButton, { ButtonVariant } from "./StoryButton";
+import ItemList from "./ItemList";
+
+interface AcceptanceCriteria {
+  id: string;
+  description: string;
+  isMet: boolean;
+}
 
 const StoryRefinerMain: React.FC = () => {
   const [story, setStory] = useState<string>("");
@@ -14,6 +21,22 @@ const StoryRefinerMain: React.FC = () => {
   const dataAnalysis = useStoryAnalysis("api/story/data-analysis");
   const uiAnalysis = useStoryAnalysis("api/story/ui-analysis");
   const dataUpdate = useStoryUpdate("api/story/data-reccomendation");
+
+  const initialCriteria = [
+    // Initial list of criteria
+    { id: "1", description: "First criterion", isMet: false },
+    { id: "2", description: "Second criterion", isMet: false },
+    { id: "3", description: "Third criterion", isMet: false },
+  ];
+
+  const [acceptanceCriteria, setAcceptanceCriteria] =
+    useState<AcceptanceCriteria[]>(initialCriteria);
+
+  const handleCriteriaChange = (updatedCriteria: AcceptanceCriteria[]) => {
+    setAcceptanceCriteria(updatedCriteria);
+    console.log(updatedCriteria);
+    setModalVisible(false);
+  };
 
   const handleStoryInputSubmit = (story: string) => {
     console.log(story);
@@ -91,8 +114,9 @@ const StoryRefinerMain: React.FC = () => {
           </div>
         </div>
       </div>
-      <div className="flex">Admin Panel</div>
+
       <div>
+        <p> Admin Panel</p>
         <StoryButton
           variant={ButtonVariant.Elevated}
           type="submit"
@@ -102,16 +126,9 @@ const StoryRefinerMain: React.FC = () => {
         </StoryButton>
       </div>
       {/* Modals */}
+
       <StoryModal show={modalVisible} onClose={handleDismiss}>
-        <div>
-          {dataUpdate.updatedUserStory && (
-            <div>
-              <p>{dataUpdate.updatedUserStory}</p>
-              <button onClick={handleAccept}>Accept</button>
-              <button onClick={handleDismiss}>Dismiss</button>
-            </div>
-          )}
-        </div>
+        <ItemList story={story} setStory={setStory} onClose={handleDismiss} />
       </StoryModal>
     </>
   );

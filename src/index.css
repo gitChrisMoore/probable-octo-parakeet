@@ -16,7 +16,7 @@
   }
 
   main {
-    @apply px-4 min-h-screen sm:px-0 space-y-16 w-full bg-gray-900;
+    @apply px-4 min-h-screen sm:px-0 w-full bg-gray-900;
     background-image: radial-gradient(hsla(0, 0%, 84.3%, 0.25) 1px,
         transparent 0),
       radial-gradient(hsla(0, 0%, 84.3%, 0.1) 1px, transparent 0);
@@ -33,3 +33,27 @@
   padding: 2rem;
   text-align: center;
 } */
+
+
+@keyframes placeholderShimmer {
+  0% {
+    background-position: -468px 0;
+  }
+
+  100% {
+    background-position: 468px 0;
+  }
+}
+
+.animated-background {
+  animation-duration: 1.25s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
+  animation-name: placeholderShimmer;
+  animation-timing-function: linear;
+  background: #f6f7f8;
+  background: linear-gradient(to right, #eeeeee 8%, #dddddd 18%, #eeeeee 33%);
+  background-size: 800px 104px;
+  height: 20px;
+  position: relative;
+}
