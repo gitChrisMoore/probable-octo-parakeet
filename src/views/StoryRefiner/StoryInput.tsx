@@ -23,7 +23,14 @@ const StoryInput: React.FC<StoryInputProps> = ({
 
   return (
     <form onSubmit={handleSubmit}>
-      <div className="mb-2">
+      <textarea
+        className="border border-gray-400 p-2 rounded-md w-full focus:bg-white bg-slate-100"
+        placeholder="Enter your story here"
+        value={story}
+        rows={5}
+        onChange={(event) => setStory(event.target.value)}
+      />
+      <div className="flex justify-between mt-2">
         <StoryButton variant={ButtonVariant.Filled} type="submit">
           Analyze
         </StoryButton>
@@ -35,13 +42,6 @@ const StoryInput: React.FC<StoryInputProps> = ({
           Clear Story
         </StoryButton>
       </div>
-      <textarea
-        className="border border-gray-400 p-2 rounded-md w-full"
-        placeholder="Enter your story here"
-        value={story}
-        rows={20}
-        onChange={(event) => setStory(event.target.value)}
-      />
     </form>
   );
 };

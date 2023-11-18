@@ -31,7 +31,7 @@ const StoryButton: React.FC<ButtonProps> = ({
     [ButtonVariant.FilledTonal]: "bg-blue-200 text-blue-700 hover:bg-blue-300",
     [ButtonVariant.Outlined]:
       "bg-transparent hover:bg-blue-100 text-blue-700 border border-blue-500",
-    [ButtonVariant.Text]: "bg-transparent text-blue-700 hover:bg-blue-100",
+    [ButtonVariant.Text]: "bg-transparent text-grey-700 hover:bg-blue-100",
     [ButtonVariant.Elevated]:
       "bg-white text-blue-700 hover:bg-blue-100 shadow-md",
   };

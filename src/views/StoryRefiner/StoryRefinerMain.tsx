@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import StoryInput from "./StoryInput";
 import useStoryAnalysis from "../StoryAnalyzer/useStoryAnalysis";
 
@@ -6,13 +7,11 @@ import StoryCollapsibleCard from "./StoryCollapsibleCard";
 import StoryModal from "./StoryModal";
 import useStoryUpdate from "../StoryUpdate/useStoryUpdate";
 import StoryButton, { ButtonVariant } from "./StoryButton";
-import ItemList from "./ItemList";
-
-interface AcceptanceCriteria {
-  id: string;
-  description: string;
-  isMet: boolean;
-}
+import AcceptenceCriteriaSelectModal, {
+  AcceptanceCriteria,
+} from "./AcceptenceCriteriaSelectModal";
+import AcceptanceCriteriaList from "./AcceptanceCriteriaList";
+import ProminentText from "../Shared/ProminentText";
 
 const StoryRefinerMain: React.FC = () => {
   const [story, setStory] = useState<string>("");
@@ -22,26 +21,23 @@ const StoryRefinerMain: React.FC = () => {
   const uiAnalysis = useStoryAnalysis("api/story/ui-analysis");
   const dataUpdate = useStoryUpdate("api/story/data-reccomendation");
 
-  const initialCriteria = [
-    // Initial list of criteria
-    { id: "1", description: "First criterion", isMet: false },
-    { id: "2", description: "Second criterion", isMet: false },
-    { id: "3", description: "Third criterion", isMet: false },
-  ];
+  const enrichStory = (story: string, criteria: AcceptanceCriteria[]) => {
+    if (criteria.length === 0) {
+      return story;
+    }
 
-  const [acceptanceCriteria, setAcceptanceCriteria] =
-    useState<AcceptanceCriteria[]>(initialCriteria);
-
-  const handleCriteriaChange = (updatedCriteria: AcceptanceCriteria[]) => {
-    setAcceptanceCriteria(updatedCriteria);
-    console.log(updatedCriteria);
-    setModalVisible(false);
+    const enrichedStory = story + "\n\nAcceptance Criteria:\n";
+    const enrichedStoryWithCriteria = criteria.reduce(
+      (acc, criterion) => acc + "- " + criterion.description + "\n",
+      enrichedStory
+    );
+    return enrichedStoryWithCriteria;
   };
 
   const handleStoryInputSubmit = (story: string) => {
-    console.log(story);
-    dataAnalysis.fetchAnalysis(story);
-    uiAnalysis.fetchAnalysis(story);
+    console.log(enrichStory(story, criteria));
+    dataAnalysis.fetchAnalysis(enrichStory(story, criteria));
+    uiAnalysis.fetchAnalysis(enrichStory(story, criteria));
   };
 
   const setStoryBasicCoveredMember = () => {
@@ -49,15 +45,15 @@ const StoryRefinerMain: React.FC = () => {
       "As a Covered Member, I want to submit a short term disability claim."
     );
   };
-  // shhould use dataUpdate
+  // shhould use dataUpdate d
   const handleStortyUpdate = async () => {
     try {
-      const response = await dataUpdate.fetchAnalysis(story);
-      console.log("handle story update");
+      // const response = await dataUpdate.fetchAnalysis(story);
+      // console.log("handle story update");
 
-      console.log(response);
-      console.log("handle story update");
-      setApiResponse(response);
+      // console.log(response);
+      // console.log("handle story update");
+      // setApiResponse(response);
       setModalVisible(true);
     } catch (error) {
       console.error("Error calling the API", error);
@@ -65,9 +61,37 @@ const StoryRefinerMain: React.FC = () => {
     }
   };
 
+  const [criteria, setCriteria] = useState<AcceptanceCriteria[]>([]);
+  const [tempCriteria, setTempCriteria] = useState<AcceptanceCriteria[]>([]); // Temporary state variable
+
   // Accept the API response and update the story
   const handleAccept = () => {
     setStory(dataUpdate.updatedUserStory);
+    setModalVisible(false);
+  };
+
+  const handleAddNewCriterion = () => {
+    setCriteria([
+      ...criteria,
+      {
+        id: uuidv4(),
+        description: "",
+        checked: false,
+      },
+    ]);
+  };
+
+  // onAddCriteriaClick should add the tempCriteria to the main criteria
+  const handleAddCriteria = () => {
+    const checkedCriteria = tempCriteria.filter(
+      (criterion) => criterion.checked
+    );
+    const checkedCriteriaWithUniqueKeys = checkedCriteria.map((criterion) => ({
+      ...criterion,
+      id: uuidv4(), // Generate a unique identifier for each criterion
+    }));
+    setCriteria([...criteria, ...checkedCriteriaWithUniqueKeys]);
+    setTempCriteria([]);
     setModalVisible(false);
   };
 
@@ -80,27 +104,51 @@ const StoryRefinerMain: React.FC = () => {
     <>
       <div className="flex flex-col md:mx-4 md:flex-row ">
         <div className="flex-1 py-4 md:mr-3 rounded-lg">
-          Left Pane
+          {/* LEFT PANE */}
+
+          <ProminentText>User Story:</ProminentText>
+
           <div className="bg-slate-100 p-4 my-2 rounded-md shadow border border-slate-200 flex flex-col">
             <StoryInput
               story={story}
               setStory={setStory}
               onSubmit={() => handleStoryInputSubmit(story)}
             />
-            <div>
-              <StoryButton
-                variant={ButtonVariant.Elevated}
-                type="submit"
-                onClick={handleStortyUpdate}
-              >
-                Suggest Data Update
-              </StoryButton>
-            </div>
+          </div>
+          {/*  */}
+          {/* Acceptance Criteria */}
+          {/*  */}
+          <div className="mt-8 mb-4 flex justify-between items-center">
+            <ProminentText>Acceptance Criteria:</ProminentText>
+            <StoryButton
+              variant={ButtonVariant.Elevated}
+              onClick={handleAddNewCriterion}
+            >
+              Add New
+            </StoryButton>
+          </div>
+
+          <div className="bg-slate-100 px-4 my-2 rounded-md shadow  flex flex-col">
+            <AcceptanceCriteriaList
+              criteria={criteria}
+              setCriteria={setCriteria}
+            />
+          </div>
+          <div>
+            <StoryButton
+              variant={ButtonVariant.Elevated}
+              type="submit"
+              onClick={handleStortyUpdate}
+            >
+              Suggest Data Acceptance Criteria
+            </StoryButton>
           </div>
         </div>
         <div className=" py-4 w-full md:w-[360px] md:ml-3 rounded-lg">
-          Right Pane
-          <div className="space-y-2">
+          {/* RIGHT PANE */}
+
+          <ProminentText>Completeness Score:</ProminentText>
+          <div className="space-y-2 my-2">
             <StoryCollapsibleCard
               title="Data Analysis"
               score={dataAnalysis.score}
@@ -115,7 +163,7 @@ const StoryRefinerMain: React.FC = () => {
         </div>
       </div>
 
-      <div>
+      <div className="mt-16">
         <p> Admin Panel</p>
         <StoryButton
           variant={ButtonVariant.Elevated}
@@ -126,10 +174,16 @@ const StoryRefinerMain: React.FC = () => {
         </StoryButton>
       </div>
       {/* Modals */}
+      <AcceptenceCriteriaSelectModal
+        story={story}
+        visible={modalVisible}
+        criteria={tempCriteria}
+        setCriteria={setTempCriteria}
+        onClose={handleDismiss}
+        onAddCriteriaClick={handleAddCriteria}
+      />
 
-      <StoryModal show={modalVisible} onClose={handleDismiss}>
-        <ItemList story={story} setStory={setStory} onClose={handleDismiss} />
-      </StoryModal>
+      {/* <StoryModal show={modalVisible} onClose={handleDismiss}></StoryModal> */}
     </>
   );
 };
