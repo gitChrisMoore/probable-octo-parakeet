@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import StoryInput from "./StoryInput";
 import useStoryAnalysis from "../StoryAnalyzer/useStoryAnalysis";
 
 import StoryCollapsibleCard from "./StoryCollapsibleCard";
-import StoryModal from "./StoryModal";
+
 import useStoryUpdate from "../StoryUpdate/useStoryUpdate";
 import StoryButton, { ButtonVariant } from "./StoryButton";
 import AcceptenceCriteriaSelectModal, {
@@ -15,11 +15,14 @@ import ProminentText from "../Shared/ProminentText";
 
 const StoryRefinerMain: React.FC = () => {
   const [story, setStory] = useState<string>("");
+  const [enrichedStory, setEnrichedStory] = useState<string>("");
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [apiResponse, setApiResponse] = useState<any>(null);
   const dataAnalysis = useStoryAnalysis("api/story/data-analysis");
   const uiAnalysis = useStoryAnalysis("api/story/ui-analysis");
   const dataUpdate = useStoryUpdate("api/story/data-reccomendation");
+  const [criteria, setCriteria] = useState<AcceptanceCriteria[]>([]);
+  const [tempCriteria, setTempCriteria] = useState<AcceptanceCriteria[]>([]);
 
   const enrichStory = (story: string, criteria: AcceptanceCriteria[]) => {
     if (criteria.length === 0) {
@@ -61,8 +64,10 @@ const StoryRefinerMain: React.FC = () => {
     }
   };
 
-  const [criteria, setCriteria] = useState<AcceptanceCriteria[]>([]);
-  const [tempCriteria, setTempCriteria] = useState<AcceptanceCriteria[]>([]); // Temporary state variable
+  useEffect(() => {
+    const enrichedStory = enrichStory(story, criteria);
+    setEnrichedStory(enrichedStory);
+  }, [story, criteria]);
 
   // Accept the API response and update the story
   const handleAccept = () => {
@@ -175,7 +180,7 @@ const StoryRefinerMain: React.FC = () => {
       </div>
       {/* Modals */}
       <AcceptenceCriteriaSelectModal
-        story={story}
+        story={enrichedStory}
         visible={modalVisible}
         criteria={tempCriteria}
         setCriteria={setTempCriteria}

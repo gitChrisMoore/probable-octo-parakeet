@@ -40,6 +40,18 @@ const AcceptenceCriteriaSelectModal: React.FC<AcceptanceCriteriaListProps> = ({
       )
     );
   };
+  const enrichStory = (story: string, criteria: AcceptanceCriteria[]) => {
+    if (criteria.length === 0) {
+      return story;
+    }
+
+    const enrichedStory = story + "\n\nAcceptance Criteria:\n";
+    const enrichedStoryWithCriteria = criteria.reduce(
+      (acc, criterion) => acc + "- " + criterion.description + "\n",
+      enrichedStory
+    );
+    return enrichedStoryWithCriteria;
+  };
 
   const handleFetchCriteria = async () => {
     setLoading(true);

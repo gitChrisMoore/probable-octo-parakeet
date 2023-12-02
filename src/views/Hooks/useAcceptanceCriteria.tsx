@@ -5,21 +5,9 @@ const PROD = "";
 const DEV = "http://127.0.0.1:5000/";
 
 const useAcceptanceCriteria = (endpoint: string) => {
-  const isValidAcceptanceCriteria = (
-    data: any
-  ): data is AcceptanceCriteria[] => {
-    return (
-      Array.isArray(data) &&
-      data.every(
-        (item) =>
-          typeof item.id === "string" &&
-          typeof item.description === "string" &&
-          typeof item.completed === "boolean"
-      )
-    );
-  };
-
   const fetchCriteria = async (userStory: string) => {
+    console.log("user story:", userStory);
+
     const response = await fetch(DEV + endpoint, {
       method: "POST",
       headers: {
